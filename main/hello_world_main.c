@@ -14,6 +14,8 @@
 #include "esp_system.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
+#include "iot_button.h"
+#include "button_gpio.h"
 
 #define BLINK_GPIO 18
 
@@ -26,6 +28,44 @@
 #define LEDC_DUTY               (4096) // Set duty to 50%. (2 ** 13) * 50% = 4096
 #define LEDC_FREQUENCY          (1000) // Frequency in Hertz. Set frequency at 4 kHz
 
+int flag = 0;
+
+static void button_event_cb(void *arg, void *data)
+{
+    iot_button_print_event((button_handle_t)arg);
+    if (iot_button_get_event((button_handle_t)arg) == BUTTON_SINGLE_CLICK){
+        flag = !flag;
+        gpio_set_level(BLINK_GPIO,flag);
+    }
+}
+
+
+void button_init(uint32_t button_num)
+{
+    button_config_t btn_cfg = {0};
+    button_gpio_config_t gpio_cfg = {
+        .gpio_num = button_num,
+        .active_level = 0,
+        .enable_power_save = false,
+    };
+
+    button_handle_t btn;
+    esp_err_t ret = iot_button_new_gpio_device(&btn_cfg, &gpio_cfg, &btn);
+    assert(ret == ESP_OK);
+
+    ret = iot_button_register_cb(btn, BUTTON_PRESS_DOWN, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_PRESS_UP, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_PRESS_REPEAT, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_PRESS_REPEAT_DONE, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_SINGLE_CLICK, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_DOUBLE_CLICK, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_LONG_PRESS_START, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_LONG_PRESS_HOLD, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_LONG_PRESS_UP, NULL, button_event_cb, NULL);
+    ret |= iot_button_register_cb(btn, BUTTON_PRESS_END, NULL, button_event_cb, NULL);
+
+    ESP_ERROR_CHECK(ret);
+}
 
 void buttonLED_task(void *arg){
     int flag = 0;
@@ -96,17 +136,17 @@ void app_main(void)
 
 
     //4.按键输入
-    gpio_config_t io_conf = {};
-    io_conf.pull_down_en = 0;
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.pin_bit_mask = (1ULL<<32);
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_up_en = 1;
-    gpio_config(&io_conf);
+    // gpio_config_t io_conf = {};
+    // io_conf.pull_down_en = 0;
+    // io_conf.intr_type = GPIO_INTR_DISABLE;
+    // io_conf.pin_bit_mask = (1ULL<<32);
+    // io_conf.mode = GPIO_MODE_INPUT;
+    // io_conf.pull_up_en = 1;
+    // gpio_config(&io_conf);
 
     
-    
+    button_init(32);
 
-    xTaskCreate(buttonLED_task,"buttonLED_task",2048,NULL,10,NULL);
+    // xTaskCreate(buttonLED_task,"buttonLED_task",2048,NULL,10,NULL);
     xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
 }
