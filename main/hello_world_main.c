@@ -120,7 +120,6 @@ void app_main(void)
         .clk_cfg          = LEDC_AUTO_CLK
     };
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
-
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel_config_t ledc_channel = {
         .speed_mode     = LEDC_MODE,
@@ -134,7 +133,6 @@ void app_main(void)
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
     
 
-
     //4.按键输入
     // gpio_config_t io_conf = {};
     // io_conf.pull_down_en = 0;
@@ -144,9 +142,12 @@ void app_main(void)
     // io_conf.pull_up_en = 1;
     // gpio_config(&io_conf);
 
-    
-    button_init(32);
 
+    //5.创建任务
     // xTaskCreate(buttonLED_task,"buttonLED_task",2048,NULL,10,NULL);
+
+    
+    //6.组件库
+    button_init(32);
     xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
 }
