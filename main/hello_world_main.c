@@ -28,6 +28,9 @@
 #define LEDC_DUTY               (4096) // Set duty to 50%. (2 ** 13) * 50% = 4096
 #define LEDC_FREQUENCY          (1000) // Frequency in Hertz. Set frequency at 4 kHz
 
+
+extern void init_mylvgl(void);
+
 int flag = 0;
 
 static void button_event_cb(void *arg, void *data)
@@ -106,31 +109,31 @@ void app_main(void)
     printf("测试！！！！！！！！！！！！\n");
     fflush(stdout);
     //2.点亮LED
-    gpio_reset_pin(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    // gpio_reset_pin(BLINK_GPIO);
+    // gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
     // gpio_set_level(BLINK_GPIO, 1);
 
     //3.呼吸灯
     // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer_config_t ledc_timer = {
-        .speed_mode       = LEDC_MODE,
-        .duty_resolution  = LEDC_DUTY_RES,
-        .timer_num        = LEDC_TIMER,
-        .freq_hz          = LEDC_FREQUENCY,  // Set output frequency at 4 kHz
-        .clk_cfg          = LEDC_AUTO_CLK
-    };
-    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+    // ledc_timer_config_t ledc_timer = {
+    //     .speed_mode       = LEDC_MODE,
+    //     .duty_resolution  = LEDC_DUTY_RES,
+    //     .timer_num        = LEDC_TIMER,
+    //     .freq_hz          = LEDC_FREQUENCY,  // Set output frequency at 4 kHz
+    //     .clk_cfg          = LEDC_AUTO_CLK
+    // };
+    // ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
     // Prepare and then apply the LEDC PWM channel configuration
-    ledc_channel_config_t ledc_channel = {
-        .speed_mode     = LEDC_MODE,
-        .channel        = LEDC_CHANNEL,
-        .timer_sel      = LEDC_TIMER,
-        .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = LEDC_OUTPUT_IO,
-        .duty           = 0, // Set duty to 0%
-        .hpoint         = 0
-    };
-    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+    // ledc_channel_config_t ledc_channel = {
+    //     .speed_mode     = LEDC_MODE,
+    //     .channel        = LEDC_CHANNEL,
+    //     .timer_sel      = LEDC_TIMER,
+    //     .intr_type      = LEDC_INTR_DISABLE,
+    //     .gpio_num       = LEDC_OUTPUT_IO,
+    //     .duty           = 0, // Set duty to 0%
+    //     .hpoint         = 0
+    // };
+    // ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
     
 
     //4.按键输入
@@ -146,8 +149,11 @@ void app_main(void)
     //5.创建任务
     // xTaskCreate(buttonLED_task,"buttonLED_task",2048,NULL,10,NULL);
 
-    
+
     //6.组件库
-    button_init(32);
-    xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
+    // button_init(32);
+    // xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
+
+
+    init_mylvgl();
 }
