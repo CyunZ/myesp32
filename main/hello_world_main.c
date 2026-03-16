@@ -30,6 +30,7 @@
 
 
 extern void init_mylvgl(void);
+extern void init_mywifi(void);
 
 int flag = 0;
 
@@ -154,6 +155,8 @@ void app_main(void)
     // button_init(32);
     // xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
 
-
+    //7.点亮LCD + 8.触屏
     init_mylvgl();
+
+    init_mywifi();
 }
