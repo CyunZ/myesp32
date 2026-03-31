@@ -158,5 +158,6 @@ void app_main(void)
     //7.点亮LCD + 8.触屏
     init_mylvgl();
 
+    //9.连接WIFI
     init_mywifi();
 }
