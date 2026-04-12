@@ -31,6 +31,7 @@
 
 extern void init_mylvgl(void);
 extern void init_mywifi(void);
+extern void init_http_event_group();
 
 int flag = 0;
 
@@ -160,4 +161,6 @@ void app_main(void)
 
     //9.连接WIFI
     init_mywifi();
+
+    init_http_event_group();
 }

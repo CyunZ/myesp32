@@ -29,6 +29,23 @@ static const char *TAG = "HTTP_CLIENT";
 
 extern void set_mylabel(char *text);
 
+typedef struct{
+    char *url;
+    char *json_str;
+    char *response_str;
+    esp_err_t err;
+}http_data;
+
+static EventGroupHandle_t http_event_group;
+
+#define HTTP_GET_BIT BIT0
+#define HTTP_POST_BIT      BIT1
+
+void init_http_event_group()
+{
+    http_event_group = xEventGroupCreate();
+}
+
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     static int output_len;       // Stores number of bytes read
@@ -90,74 +107,88 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-static void http_rest_with_url(void)
+
+
+static void http_get_task(void *pvParameters)
 {
-    // Declare local_response_buffer with size (MAX_HTTP_OUTPUT_BUFFER + 1) to prevent out of bound access when
-    // it is used by functions like strlen(). The buffer should only be used upto size MAX_HTTP_OUTPUT_BUFFER
-    char local_response_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
-    /**
-     * NOTE: All the configuration parameters for http_client must be specified either in URL or as host and path parameters.
-     * If host and path parameters are not set, query parameter will be ignored. In such cases,
-     * query parameter should be specified in URL.
-     *
-     * If URL as well as host and path parameters are specified, values of host and path will be considered.
-     */
+    http_data *hdata = (http_data *)pvParameters;
+   
+    //  "http://httpbin.org/headers"
     esp_http_client_config_t config = {
-     
-        .url = "http://httpbin.org/headers",
+        .url = hdata->url,
         .event_handler = _http_event_handler,
-        .user_data = local_response_buffer,        // Pass address of local buffer to get response
+        .user_data = hdata->response_str,        // Pass address of local buffer to get response
         .disable_auto_redirect = true,
     };
     ESP_LOGI(TAG, "HTTP request with url =>");
     esp_http_client_handle_t client = esp_http_client_init(&config);
 
     // GET
-    esp_err_t err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %"PRId64,
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
-    }
-    ESP_LOG_BUFFER_HEX(TAG, local_response_buffer, strlen(local_response_buffer));
+    hdata->err = esp_http_client_perform(client);
+   
 
-    set_mylabel(local_response_buffer);
+    xEventGroupSetBits(http_event_group, HTTP_GET_BIT);
+
+    esp_http_client_cleanup(client);
+
+    vTaskDelete(NULL);
+}
+
+
+static void http_post_task(void *pvParameters)
+{
+    http_data *hdata = (http_data *)pvParameters;
+   
+    //  "http://httpbin.org/post"
+    esp_http_client_config_t config = {
+        .url = hdata->url,
+        .event_handler = _http_event_handler,
+        .user_data = hdata->response_str,        // Pass address of local buffer to get response
+        .disable_auto_redirect = true,
+    };
+    ESP_LOGI(TAG, "HTTP request with url =>");
+    esp_http_client_handle_t client = esp_http_client_init(&config);
 
     // POST
-    const char *post_data = "{\"field1\":\"value1\"}";
-    esp_http_client_set_url(client, "http://httpbin.org/post");
+    const char *post_data = hdata->json_str;
     esp_http_client_set_method(client, HTTP_METHOD_POST);
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, post_data, strlen(post_data));
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP POST Status = %d, content_length = %"PRId64,
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-    }
+    hdata->err = esp_http_client_perform(client);
 
-    set_mylabel(local_response_buffer);
-
+    xEventGroupSetBits(http_event_group, HTTP_POST_BIT);
 
     esp_http_client_cleanup(client);
-}
 
-
-static void http_test_task(void *pvParameters)
-{
-    http_rest_with_url();
-
-    ESP_LOGI(TAG, "Finish http example");
-#if !CONFIG_IDF_TARGET_LINUX
     vTaskDelete(NULL);
-#endif
 }
 
-void http_test(void)
+esp_err_t http_get(char *url,char *response_str)
 {
-    xTaskCreate(&http_test_task, "http_test_task", 8192, NULL, 5, NULL);
+    http_data hdata = {0};
+    hdata.url = url;
+    hdata.response_str = response_str;
+    xTaskCreate(&http_get_task, "http_get_task", 8192, &hdata, 5, NULL);
+    EventBits_t bits = xEventGroupWaitBits(http_event_group,
+            HTTP_GET_BIT,
+            pdTRUE,
+            pdFALSE,
+            portMAX_DELAY);
+    return hdata.err;
+
+}
+
+esp_err_t http_post(char *url,char *json_str,char *response_str)
+{
+    http_data hdata = {0};
+    hdata.url = url;
+    hdata.response_str = response_str;
+    hdata.json_str = json_str;
+    xTaskCreate(&http_post_task, "http_post_task", 8192, &hdata, 5, NULL);
+    EventBits_t bits = xEventGroupWaitBits(http_event_group,
+            HTTP_POST_BIT,
+            pdTRUE,
+            pdFALSE,
+            portMAX_DELAY);
+    return hdata.err;
 }
