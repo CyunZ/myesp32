@@ -21,7 +21,7 @@ void set_mylabel(char *text)
 static void btn_event_get(lv_event_t * e)
 {
     char response_str[2048+1];
-    esp_err_t err = http_get("http://httpbin.org/headers",response_str);
+    esp_err_t err = http_get("http://192.168.31.216:12345/music",response_str);
      if (err == ESP_OK) {
         lv_label_set_text(label, response_str);
     } else {
@@ -33,7 +33,8 @@ static void btn_event_get(lv_event_t * e)
 static void btn_event_post(lv_event_t * e)
 {
     char response_str[2048+1];
-    esp_err_t err = http_post("http://httpbin.org/post","{\"key\":\"hahahahahahahaha\"}",response_str);
+    esp_err_t err = http_post("http://192.168.31.216:12345/giveme"
+        ,"{\"what\":\"Yamato\"}",response_str);
      if (err == ESP_OK) {
         lv_label_set_text(label, response_str);
     } else {

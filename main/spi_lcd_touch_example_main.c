@@ -132,8 +132,8 @@ static void example_lvgl_touch_cb(lv_indev_t *indev, lv_indev_data_t *data)
         data->point.x = x;
         data->point.y = y;
         data->state = LV_INDEV_STATE_PRESSED;
-        printf("x:%d,y:%d\n",x,y);
-        fflush(stdout);
+        // printf("x:%d,y:%d\n",x,y);
+        // fflush(stdout);
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }
