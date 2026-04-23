@@ -162,5 +162,6 @@ void app_main(void)
     //9.连接WIFI
     init_mywifi();
 
+    //10.http请求
     init_http_event_group();
 }
