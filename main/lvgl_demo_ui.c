@@ -44,6 +44,14 @@ static void btn_event_post(lv_event_t * e)
 
 void example_lvgl_demo_ui(lv_display_t *disp)
 {
+
+    lv_obj_t * img = lv_image_create(lv_screen_active());
+    LV_IMAGE_DECLARE(chair);
+    lv_image_set_src(img, &chair);
+    lv_obj_center(img);
+    lv_obj_set_size(img,241,322);
+    lv_image_set_align(img,LV_IMAGE_ALIGN_STRETCH);
+
     label = lv_label_create(lv_screen_active());
     lv_label_set_text(label, "Hello world");
     lv_obj_set_width(label,200);
@@ -67,4 +75,5 @@ void example_lvgl_demo_ui(lv_display_t *disp)
     lv_obj_t * label3 = lv_label_create(btn2);          /*Add a label to the button*/
     lv_label_set_text(label3, "POST");                     /*Set the labels text*/
     lv_obj_center(label3);
+
 }
