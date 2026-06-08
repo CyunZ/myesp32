@@ -253,22 +253,22 @@ void init_mylvgl(void)
     /* Register done callback */
     ESP_ERROR_CHECK(esp_lcd_panel_io_register_event_callbacks(io_handle, &cbs, display));
 
-    spi_bus_config_t buscfg2 = {
-        .sclk_io_num = 23,
-        .mosi_io_num = 32,
-        .miso_io_num = 33,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = EXAMPLE_LCD_H_RES * 80 * sizeof(uint16_t),
-    };
-    ESP_ERROR_CHECK(spi_bus_initialize(SPI3_HOST, &buscfg2, SPI_DMA_CH_AUTO));
+    // spi_bus_config_t buscfg2 = {
+    //     .sclk_io_num = 23,
+    //     .mosi_io_num = 32,
+    //     .miso_io_num = 33,
+    //     .quadwp_io_num = -1,
+    //     .quadhd_io_num = -1,
+    //     .max_transfer_sz = EXAMPLE_LCD_H_RES * 80 * sizeof(uint16_t),
+    // };
+    // ESP_ERROR_CHECK(spi_bus_initialize(SPI3_HOST, &buscfg2, SPI_DMA_CH_AUTO));
 
 
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
     esp_lcd_panel_io_spi_config_t tp_io_config =
         ESP_LCD_TOUCH_IO_SPI_XPT2046_CONFIG(22);
     // Attach the TOUCH to the SPI bus
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI3_HOST, &tp_io_config, &tp_io_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &tp_io_config, &tp_io_handle));
 
     esp_lcd_touch_config_t tp_cfg = {
         .x_max = EXAMPLE_LCD_H_RES,

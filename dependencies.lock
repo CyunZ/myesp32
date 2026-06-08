@@ -72,12 +72,19 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 9.5.0
+  sd_card:
+    dependencies: []
+    source:
+      path: F:\esp_vs\v5.5.1\esp-idf\examples\storage\sd_card\sdmmc\components\sd_card
+      type: local
+    version: '*'
 direct_dependencies:
 - atanisoft/esp_lcd_touch_xpt2046
 - espressif/button
 - espressif/esp_lcd_ili9341
 - idf
 - lvgl/lvgl
-manifest_hash: 10f3ecae1126a194b13d875fff06a3b3788fdd6b5a1cb8c9c0652196d8d334db
+- sd_card
+manifest_hash: ffbf61354e5c9e064e28605b140565a1788ec5a6f7a9615581b548d5ffeb64dd
 target: esp32
 version: 2.0.0

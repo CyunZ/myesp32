@@ -32,6 +32,7 @@
 extern void init_mylvgl(void);
 extern void init_mywifi(void);
 extern void init_http_event_group();
+extern void init_mysdcard(void);
 
 int flag = 0;
 
@@ -156,6 +157,9 @@ void app_main(void)
     // button_init(32);
     // xTaskCreate(pwmLED_task,"pwmLED_task",2048,NULL,10,NULL);
 
+    //13.SPI驱动SD卡
+    init_mysdcard();
+
     //7.点亮LCD + 8.触屏
     init_mylvgl();
 
@@ -164,4 +168,6 @@ void app_main(void)
 
     //10.http请求
     init_http_event_group();
+
+    
 }

@@ -11,6 +11,7 @@
 
 extern esp_err_t http_get(char *url,char *response_str);
 extern esp_err_t http_post(char *url,char *json_str,char *response_str);
+extern void free_sdcard();
 
 lv_obj_t * label;
 void set_mylabel(char *text)
@@ -20,37 +21,50 @@ void set_mylabel(char *text)
 
 static void btn_event_get(lv_event_t * e)
 {
-    char response_str[2048+1];
-    esp_err_t err = http_get("http://192.168.31.216:12345/music",response_str);
-     if (err == ESP_OK) {
-        lv_label_set_text(label, response_str);
-    } else {
-        lv_label_set_text(label, "HTTP GET FAIL");
+    // char response_str[2048+1];
+    // esp_err_t err = http_get("http://192.168.31.216:12345/music",response_str);
+    //  if (err == ESP_OK) {
+    //     lv_label_set_text(label, response_str);
+    // } else {
+    //     lv_label_set_text(label, "HTTP GET FAIL");
+    // }
+
+    lv_fs_file_t f;
+    lv_fs_res_t res;
+    res = lv_fs_open(&f, "A:/test.jpg", LV_FS_MODE_RD);
+    if(res != LV_FS_RES_OK) {
+        lv_label_set_text(label, "OPEN FILE FAIL"); 
+    }else{
+        lv_label_set_text(label, "OPEN FILE SUCCESS"); 
     }
+   
+    lv_fs_close(&f);
 }
 
 
 static void btn_event_post(lv_event_t * e)
 {
-    char response_str[2048+1];
-    esp_err_t err = http_post("http://192.168.31.216:12345/giveme"
-        ,"{\"what\":\"Yamato\"}",response_str);
-     if (err == ESP_OK) {
-        lv_label_set_text(label, response_str);
-    } else {
-        lv_label_set_text(label, "HTTP POST FAIL");
-    }
+    // char response_str[2048+1];
+    // esp_err_t err = http_post("http://192.168.31.216:12345/giveme"
+    //     ,"{\"what\":\"Yamato\"}",response_str);
+    //  if (err == ESP_OK) {
+    //     lv_label_set_text(label, response_str);
+    // } else {
+    //     lv_label_set_text(label, "HTTP POST FAIL");
+    // }
+
+    free_sdcard();
 }
 
 void example_lvgl_demo_ui(lv_display_t *disp)
 {
 
-    lv_obj_t * img = lv_image_create(lv_screen_active());
-    LV_IMAGE_DECLARE(chair);
-    lv_image_set_src(img, &chair);
-    lv_obj_center(img);
-    lv_obj_set_size(img,241,322);
-    lv_image_set_align(img,LV_IMAGE_ALIGN_STRETCH);
+    // lv_obj_t * img = lv_image_create(lv_screen_active());
+    // LV_IMAGE_DECLARE(chair);
+    // lv_image_set_src(img, &chair);
+    // lv_obj_center(img);
+    // lv_obj_set_size(img,241,322);
+    // lv_image_set_align(img,LV_IMAGE_ALIGN_STRETCH);
 
     label = lv_label_create(lv_screen_active());
     lv_label_set_text(label, "Hello world");
@@ -64,7 +78,7 @@ void example_lvgl_demo_ui(lv_display_t *disp)
     lv_obj_add_event_cb(btn, btn_event_get, LV_EVENT_CLICKED, NULL);           /*Assign a callback to the button*/
 
     lv_obj_t * label2 = lv_label_create(btn);          /*Add a label to the button*/
-    lv_label_set_text(label2, "GET");                     /*Set the labels text*/
+    lv_label_set_text(label2, "OPEN FILE");                     /*Set the labels text*/
     lv_obj_center(label2);
 
     lv_obj_t * btn2 = lv_button_create(lv_screen_active());     /*Add a button the current screen*/
@@ -73,7 +87,7 @@ void example_lvgl_demo_ui(lv_display_t *disp)
     lv_obj_add_event_cb(btn2, btn_event_post, LV_EVENT_CLICKED, NULL);           /*Assign a callback to the button*/
 
     lv_obj_t * label3 = lv_label_create(btn2);          /*Add a label to the button*/
-    lv_label_set_text(label3, "POST");                     /*Set the labels text*/
+    lv_label_set_text(label3, "FREE");                     /*Set the labels text*/
     lv_obj_center(label3);
 
 }
